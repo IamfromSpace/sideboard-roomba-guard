@@ -1,3 +1,30 @@
+module guard(
+  length,
+  max_length,
+  thickness,
+  explode,
+) {
+  effective_explode = explode == undef ? thickness * 0.6 : explode;
+  segment_count = ceil(length / max_length);
+  segment_length = length / segment_count - $tolerance * (segment_count - 1);
+  module segment(args) guard_segment(segment_length, thickness, args[0], args[1], args[2]);
+
+  for (i = [0:segment_count-1]) {
+    is_male = i % 2 == 0;
+    args = [is_male ? MALE : FEMALE, i != 0, i != segment_count - 1];
+
+    translate([i*(segment_length + $tolerance), 0, 0])
+      if (is_male) {
+        translate([0, 0, -effective_explode])
+          segment(args);
+      } else {
+        translate([0, 0, thickness + effective_explode])
+          mirror([0, 0, 1])
+            segment(args);
+      }
+  }
+}
+
 MALE = "MALE";
 FEMALE = "FEMALE";
 
@@ -29,4 +56,4 @@ module guard_segment(
   }
 }
 
-guard_segment(50, 10, MALE, true, true, $tolerance = 0.6);
+guard(299, 50, 10, $tolerance = 0.6);
