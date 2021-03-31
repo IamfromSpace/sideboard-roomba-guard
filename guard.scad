@@ -13,19 +13,19 @@ module guard_segment(
     if (type == FEMALE) {
       if (include_left_joint)
         translate([0, thickness/3 - $tolerance/4, thickness/3 - $tolerance/2])
-          cube([thickness, thickness/3 + $tolerance/2, 2*thickness/3 + $tolerance/2]);
+          cube([thickness + $tolerance/2, thickness/3 + $tolerance/2, 2*thickness/3 + $tolerance/2]);
       if (include_right_joint)
-        translate([length-thickness, thickness/3 - $tolerance/4, thickness/3 - $tolerance/2])
-          cube([thickness, thickness/3 + $tolerance/2, 2*thickness/3 + $tolerance/2]);
+        translate([length - thickness - $tolerance/2, thickness/3 - $tolerance/4, thickness/3 - $tolerance/2])
+          cube([thickness + $tolerance/2, thickness/3 + $tolerance/2, 2*thickness/3 + $tolerance/2]);
     }
   }
   if (type == MALE) {
     if (include_left_joint)
-      translate([-thickness, thickness/3 + $tolerance/4, 0])
-        cube([thickness, thickness/3 - $tolerance/2, 2*thickness/3 - $tolerance/2]);
+      translate([-thickness + $tolerance/2, thickness/3 + $tolerance/4, 0])
+        cube([thickness - $tolerance/2, thickness/3 - $tolerance/2, 2*thickness/3 - $tolerance/2]);
     if (include_right_joint)
       translate([length, thickness/3 + $tolerance/4, 0])
-        cube([thickness, thickness/3 - $tolerance/2, 2*thickness/3 - $tolerance/2]);
+        cube([thickness - $tolerance/2, thickness/3 - $tolerance/2, 2*thickness/3 - $tolerance/2]);
   }
 }
 
