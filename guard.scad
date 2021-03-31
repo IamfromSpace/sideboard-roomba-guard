@@ -1,8 +1,12 @@
+ASSEMBLED = "ASSEMBLED";
+PRINT_READY = "PRINT_READY";
+
 module guard(
   length,
   max_length,
   thickness,
   explode,
+  layout = ASSEMBLED,
 ) {
   effective_explode = explode == undef ? thickness * 0.6 : explode;
   segment_count = ceil(length / max_length);
@@ -13,15 +17,20 @@ module guard(
     is_male = i % 2 == 0;
     args = [is_male ? MALE : FEMALE, i != 0, i != segment_count - 1];
 
-    translate([i*(segment_length + $tolerance), 0, 0])
-      if (is_male) {
-        translate([0, 0, -effective_explode])
-          segment(args);
-      } else {
-        translate([0, 0, thickness + effective_explode])
-          mirror([0, 0, 1])
+    if (layout == ASSEMBLED)
+      translate([i*(segment_length + $tolerance), 0, 0])
+        if (is_male) {
+          translate([0, 0, -effective_explode])
             segment(args);
-      }
+        } else {
+          translate([0, 0, thickness + effective_explode])
+            mirror([0, 0, 1])
+              segment(args);
+        }
+
+    if (layout == PRINT_READY)
+      translate([0, i*(thickness + 5)])
+        segment(args);
   }
 }
 
