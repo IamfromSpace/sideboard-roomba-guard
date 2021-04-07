@@ -5,13 +5,26 @@ module guard(
   length,
   max_length,
   thickness,
+  nub_depth,
+  nub_radius,
   explode,
   layout = ASSEMBLED,
 ) {
   effective_explode = explode == undef ? thickness * 0.6 : explode;
   segment_count = ceil(length / max_length);
   segment_length = length / segment_count - $tolerance * (segment_count - 1);
+  spacing = 5;
   module segment(args) guard_segment(segment_length, thickness, args[0], args[1], args[2]);
+
+  module nub () {
+    translate([0,(-nub_radius/sqrt(2)+thickness)/2,0])
+      cube([nub_depth, nub_radius/sqrt(2), nub_radius/sqrt(2)/2]);
+  }
+
+  mirror([1,0,0])
+    nub();
+  translate([segment_length, (segment_count - 1) * (thickness + spacing), 0])
+    nub();
 
   for (i = [0:segment_count-1]) {
     is_male = i % 2 == 0;
@@ -29,7 +42,7 @@ module guard(
         }
 
     if (layout == PRINT_READY)
-      translate([0, i*(thickness + 5)])
+      translate([0, i*(thickness + spacing)])
         segment(args);
   }
 }
@@ -65,4 +78,4 @@ module guard_segment(
   }
 }
 
-guard(299, 50, 10, $tolerance = 0.6);
+guard(299, 50, 10, 3.3, 15, $tolerance = 0.6);
