@@ -11,7 +11,12 @@ module guard(
   layout = ASSEMBLED,
 ) {
   effective_explode = explode == undef ? thickness * 0.6 : explode;
-  segment_count = ceil(length / max_length);
+  // We always need an odd number of segments, to ensure that the nub will be
+  // printed flat against the bed, but not be flipped over (since male/female
+  // pieces alternate).
+  segment_count_raw = ceil(length / max_length);
+  is_raw_count_odd = segment_count_raw % 2 == 0;
+  segment_count = segment_count_raw + (is_raw_count_odd ? 1 : 0);
   segment_length = length / segment_count - $tolerance * (segment_count - 1);
   spacing = 5;
   module segment(args) guard_segment(segment_length, thickness, args[0], args[1], args[2]);
