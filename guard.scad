@@ -19,36 +19,40 @@ module guard(
   segment_count = segment_count_raw + (is_raw_count_odd ? 1 : 0);
   segment_length = length / segment_count - $tolerance * (segment_count - 1);
   spacing = 5;
-  module segment(args) guard_segment(segment_length, thickness, args[0], args[1], args[2]);
 
   module nub () {
     translate([0,(-nub_radius/sqrt(2)+thickness)/2,0])
       cube([nub_depth, nub_radius/sqrt(2), nub_radius/sqrt(2)/2]);
   }
 
-  mirror([1,0,0])
-    nub();
-  translate([segment_length, (segment_count - 1) * (thickness + spacing), 0])
-    nub();
+  module segment(i) {
+    is_male = i % 2 == 0;
+    guard_segment(segment_length, thickness, is_male ? MALE : FEMALE, i != 0, i != segment_count - 1);
+    if (i == 0)
+      mirror([1,0,0])
+        nub();
+
+    if (i == segment_count - 1)
+      translate([segment_length, 0, 0])
+        nub();
+  }
 
   for (i = [0:segment_count-1]) {
     is_male = i % 2 == 0;
-    args = [is_male ? MALE : FEMALE, i != 0, i != segment_count - 1];
-
     if (layout == ASSEMBLED)
       translate([i*(segment_length + $tolerance), 0, 0])
         if (is_male) {
           translate([0, 0, -effective_explode])
-            segment(args);
+            segment(i);
         } else {
           translate([0, 0, thickness + effective_explode])
             mirror([0, 0, 1])
-              segment(args);
+              segment(i);
         }
 
     if (layout == PRINT_READY)
       translate([0, i*(thickness + spacing)])
-        segment(args);
+        segment(i);
   }
 }
 
