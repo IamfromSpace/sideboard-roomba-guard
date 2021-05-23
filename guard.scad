@@ -7,6 +7,7 @@ module guard(
   thickness,
   nub_depth,
   nub_radius,
+  height,
   explode,
   layout = ASSEMBLED,
 ) {
@@ -54,6 +55,24 @@ module guard(
       translate([0, i*(thickness + spacing)])
         segment(i);
   }
+
+  // TODO: Parameterize
+  base_overhang = 15;
+  base_thickness = thickness/4;
+  claw_thickness = thickness/4;
+
+  module s() {
+    stand(thickness, claw_thickness, base_overhang, base_thickness, height - thickness);
+  }
+
+  if (layout == PRINT_READY)
+    translate([30, segment_count * (thickness + spacing) + thickness/4, 0])
+      s();
+
+  if (layout == ASSEMBLED)
+    // Double the explode, in case the middle piece is male (which also explodes downward)
+    translate([length/2 - thickness, 0, thickness - height - 2*effective_explode])
+      s();
 }
 
 MALE = "MALE";
@@ -87,4 +106,20 @@ module guard_segment(
   }
 }
 
-guard(599.66, 50, 10, 3.3, 15, $tolerance = 0.6);
+module stand(
+  width,
+  thickness,
+  base_overhang,
+  base_thickness,
+  height,
+) {
+  translate([0, width + $tolerance, 0])
+    cube([width, thickness, height + width/2]);
+  translate([0, -thickness, 0])
+    cube([width, thickness, height + width/2]);
+  cube([width, width + $tolerance, height - $tolerance]);
+  translate([-base_overhang, -thickness, 0])
+    cube([base_overhang*2 + width, base_overhang + width + thickness*2 + $tolerance, base_thickness]);
+}
+
+guard(599.66, 50, 10, 3.3, 15, 76.2, $tolerance = 0.6);
